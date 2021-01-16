@@ -1,0 +1,32 @@
+{
+    "name": "wanakin/auth",
+    "description": "Simple Laravel authentication",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "WanaKin",
+            "email": "opensource@wanakin.com"
+        }
+    ],
+    "extra": {
+	"laravel": {
+	    "providers": [
+		"WanaKin\\Auth\\AuthServiceProvider"
+	    ]
+	}
+    },
+    "autoload": {
+	"psr-4": {
+	    "WanaKin\\Auth\\": "src/"
+	}
+    },
+    "autoload-dev": {
+	"psr-4": {
+	    "Tests\\": "tests/"
+	}
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.7",
+        "phpunit/phpunit": "^9.5"
+    }
+}
