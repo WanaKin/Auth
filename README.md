@@ -120,3 +120,10 @@ This package will register two migrations for the following tables:
 * `password_reset_tokens`
 
 Simply run `php artisan migrate` after installing this package for the tables to be created.
+
+## Events
+Currently, the following events are dispatched (in the `Illuminate\Auth\Events` namespace unless otherwise stated):
+* `Registered` on user registration
+* `Login` on user login
+* `Logout` on user logout
+* `PassowrdReset` when a user successfully resets their password

@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Tests\Fixtures\User;
 use WanaKin\Auth\EmailVerification;
 use WanaKin\Auth\PasswordResetToken;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 
 class AuthHttpTest extends FeatureTestCase {
     /**
@@ -100,6 +103,9 @@ class AuthHttpTest extends FeatureTestCase {
         // Mock the AuthService
         AuthService::shouldReceive( 'login' )->once()->withArgs( [$user->email, $password] )->andReturn( $user );
 
+        // Mock the event facade
+        Event::fake();
+
         // Set the redirect
         config()->set( 'auth.redirect', '/thisisatest' );
 
@@ -114,10 +120,13 @@ class AuthHttpTest extends FeatureTestCase {
 
         // Assert the user has been logged in
         $this->assertAuthenticatedAs( $user );
+
+        // Assert the event was dispatched
+        Event::assertDispatched( Login::class );
     }
 
     /**
-     * Test updating user details
+     * Test Updating user details
      *
      * @return void
      */
@@ -299,5 +308,33 @@ class AuthHttpTest extends FeatureTestCase {
         $response = $this->get( '/dashboard/auth/resend' );
 
         $response->assertRedirect();
+    }
+
+    /**
+     * Test logging out
+     *
+     * @return void
+     */
+    public function testLogout() {
+        // Create a user
+        $user = $this->createUser();
+
+        // Mock the event facade
+        Event::fake();
+
+        // Log in
+        $this->actingAs( $user );
+
+        // Logout
+        $response = $this->get( '/logout' );
+
+        // Assert a redirect
+        $response->assertRedirect();
+
+        // Assert the user is logged out
+        $this->assertGuest();
+
+        // Assert the logout event was dispatched
+        Event::assertDispatched( Logout::class );
     }
 }

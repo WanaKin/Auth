@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use WanaKin\Auth\Mail\EmailAdded;
 use WanaKin\Auth\Mail\PasswordReset;
 use Tests\Fixtures\User;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\PasswordReset as PasswordResetEvent;
 
 class AuthServiceTest extends FeatureTestCase {
     /**
@@ -16,6 +19,9 @@ class AuthServiceTest extends FeatureTestCase {
      * @return void
      */
     public function testRegister() {
+        // Fake the event facade
+        Event::fake();
+        
         // Generate details for the user
         $name = $this->faker->name;
         $email = $this->faker->email;
@@ -37,6 +43,9 @@ class AuthServiceTest extends FeatureTestCase {
             'email' => $email,
             'password' => 'hashed'
         ] );
+
+        // Assert the Registered event was fired
+        Event::assertDispatched( Registered::class );
     }
 
     /**
@@ -183,6 +192,32 @@ class AuthServiceTest extends FeatureTestCase {
             'id' => $user->id,
             'password' => 'hashed'
         ] );
+    }
+
+    /**
+     * Test a password reset
+     *
+     * @return void
+     */
+    public function testResetPassword() {
+        // Create a user
+        $user = $this->createUser();
+
+        // Fake the event facade
+        Event::fake();
+
+        // Create a password reset token
+        $passwordResetToken = $user->passwordResetTokens()->create( [
+            'token' => $this->faker->slug
+        ] );
+
+        // Reset the password
+        $this->assertTrue( AuthService::updatePassword( $passwordResetToken, 'abc123' ) );
+
+        // Assert the event was fired
+        Event::assertDispatched( function ( PasswordResetEvent $event ) use ( $user ) {
+                return $user->is( $event->user );
+            } );
     }
 
     /**

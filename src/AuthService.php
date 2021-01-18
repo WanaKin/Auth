@@ -8,6 +8,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable as Model;
 use WanaKin\Auth\Mail\PasswordReset;
 use WanaKin\Auth\Mail\EmailAdded;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\PasswordReset as PasswordResetEvent;
 
 class AuthService {
     /**
@@ -47,6 +49,9 @@ class AuthService {
 
         // If the user was created
         if ( $user ) {
+            // Fire the Registered event
+            event( new Registered( $user ) );
+            
             // Send the verification email
             $this->resend( $user );
 
@@ -124,9 +129,10 @@ class AuthService {
      *
      * @param string $email
      * @param string $password
+     * @param bool $remember = FALSE
      * @return ?Model
      */
-    public function login( string $email, string $password ) : ?Model {
+    public function login( string $email, string $password, bool $remember = FALSE ) : ?Model {
         // Try to find the model
         if ( $user = $this->getAuthenticatable()::where( 'email', $email )->first() ) {
             // Make sure the passwords match
@@ -175,6 +181,9 @@ class AuthService {
             // Make sure the token is new enough
             if ( $passwordResetToken->created_at->gt( now()->subMinutes( config( 'auth.passwords.users.expire' ) ) ) ) {
                 $user = $passwordResetToken->authenticatable;
+
+                // Fire the password reset event
+                event( new PasswordResetEvent( $user ) );
 
                 // Delete the token
                 $passwordResetToken->delete();
