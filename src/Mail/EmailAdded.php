@@ -1,25 +1,24 @@
 <?php
-namespace WanaKin\Auth;
+namespace WanaKin\Auth\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordReset extends Mailable {
+class EmailAdded extends Mailable {
     use Queueable, SerializesModels;
     
     /** @var string */
-    public $passwordResetUrl;
+    public $verificationUrl;
 
     /**
      * Create a new message instance.
      *
-     * @param string $passwordResetUrl
      * @return void
      */
-    public function __construct( string $passwordResetUrl ) {
-        $this->passwordResetUrl = $passwordResetUrl;
+    public function __construct( string $verificationUrl ) {
+        $this->verificationUrl = $verificationUrl;
     }
 
     /**
@@ -28,6 +27,6 @@ class PasswordReset extends Mailable {
      * @return $this
      */
     public function build() {
-        return $this->view( 'auth::password-reset' );
+        return $this->view( 'auth::email-added' );
     }
 }

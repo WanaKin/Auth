@@ -18,6 +18,19 @@ class AuthHttpTest extends FeatureTestCase {
         // This can be hard coded because its just for testing
         $app['config']->set( 'app.key', 'base64:tGJVkbucyT3kXa+UU9hqW28KRYNFYh+5cTTxxOUQRVw=' );
     }
+
+    /**
+     * Assert the login route has been registered
+     *
+     * @return void
+     */
+    public function testLoginRouteName() {
+        // Try and visit the dashboard without logging in
+        $response = $this->get( '/dashboard/auth' );
+
+        // Assert a redirect to /login
+        $response->assertRedirect( '/login' );
+    }
     
     /**
      * Test registering a user
@@ -87,14 +100,17 @@ class AuthHttpTest extends FeatureTestCase {
         // Mock the AuthService
         AuthService::shouldReceive( 'login' )->once()->withArgs( [$user->email, $password] )->andReturn( $user );
 
+        // Set the redirect
+        config()->set( 'auth.redirect', '/thisisatest' );
+
         // Attempt a login
         $response = $this->post( '/login', [
             'email' => $user->email,
             'password' => $password
         ] );
 
-        // Assert the user was redirect
-        $response->assertRedirect();
+        // Assert the user was redirected properly
+        $response->assertRedirect( '/thisisatest' );
 
         // Assert the user has been logged in
         $this->assertAuthenticatedAs( $user );

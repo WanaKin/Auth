@@ -9,7 +9,7 @@ Route::middleware( ['web'] )->group( function() {
         Route::post( '/register', [AuthController::class, 'register'] );
 
         // Login
-        Route::get( '/login', [AuthController::class, 'showLoginPage' ] )->name( 'auth.login' );
+        Route::get( '/login', [AuthController::class, 'showLoginPage'] )->name( 'login' );
         Route::post( '/login', [AuthController::class, 'login'] );
 
         // Routes that require authentication

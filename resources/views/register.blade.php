@@ -17,6 +17,6 @@
 	    <input class="form-control" type="password" id="register-password" name="password" required>
 	</div>
 	<input class="d-block btn btn-primary" type="submit" value="Register">
-	<a href="{{ route( 'auth.login' ) }}">Already Registered?</a>
+	<a href="{{ route( 'login' ) }}">Already Registered?</a>
     </form>
 @endsection

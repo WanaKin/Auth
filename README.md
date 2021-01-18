@@ -85,7 +85,7 @@ This package will add the following routes to your Laravel application:
 |---|-----|-----|
 |GET|auth.register|/register|
 |POST||/register|
-|GET|auth.login|/login|
+|GET|login|/login|
 |POST||/login|
 |GET|auth.logout|/logout|
 |GET|dashboard.auth|/dashboard/auth|
@@ -95,6 +95,7 @@ This package will add the following routes to your Laravel application:
 |POST||/forgot-password|
 |GET|auth.password.reset|/reset-password/{passwordResetToken:token}|
 |POST||/reset-password/{passwordResetToken:token}|
+|GET|auth.dashboard.resend|/dashboard/auth/resend
 
 ## Checking if a user verified their email
 Once you've added the `Verifiable` trait (included in the `WanaKinAuth` trait) to your User model, you can use the `emailVerified` attribute to check if the user has verified their email:
@@ -103,6 +104,13 @@ Once you've added the `Verifiable` trait (included in the `WanaKinAuth` trait) t
 if ( $user->emailVerified ) {
 ...
 }
+```
+
+### Middleware
+You can also use the `EnsureEmailIsVerified` middleware. To use this in routes, modify your `app/Http/Kernel.php`, and locate the `routeMiddleware` array. Then, simply replace the current entry for 'verified' with:
+
+```php
+'verified' => \WanaKin\Auth\Middleware\EnsureEmailIsVerified::class,
 ```
 
 ## Migrations

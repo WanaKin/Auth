@@ -51,7 +51,7 @@ class AuthController extends Controller {
 
         // Try to redirect to the route specific to the current state, fallback to a global redirect, and if all else fails, redirect to the application's root URL
         if ( is_string( $route = config( 'auth.redirect.' . $state ) ?? config( 'auth.redirect' ) ) ) {
-            return redirect()->route( $route );
+            return redirect( $route );
         } else {
             return redirect( config( 'app.url' ) );
         }
@@ -133,7 +133,7 @@ class AuthController extends Controller {
      */
     public function logout( Request $request ) : RedirectResponse {
         Auth::logout();
-        return redirect()->route( 'auth.login' );
+        return redirect()->route( 'login' );
     }
 
     /**
@@ -276,7 +276,7 @@ class AuthController extends Controller {
         if ( AuthService::updatePassword( $passwordResetToken, $creds['password'] ) ) {
             // Return to the log in page
             $request->session()->flash( 'password_reset', TRUE );
-            return redirect()->route( 'auth.login' );
+            return redirect()->route( 'login' );
         } else {
             return redirect()->back()->withErrors( [
                 'password' => 'Your password reset link has expired. Please request a new one.'

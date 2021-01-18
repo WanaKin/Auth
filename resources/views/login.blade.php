@@ -5,7 +5,7 @@
     @if ( Session::has( 'password_reset' ) )
 	<p><strong class="text-success">Your password has been reset. Please log in with your new password.</strong></p>
     @endif
-    <form method="POST" action="{{ route( 'auth.login' ) }}">
+    <form method="POST" action="{{ route( 'login' ) }}">
 	@csrf
 	<div class="form-group">
 	    <label for="login-email">Email</label>

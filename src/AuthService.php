@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable as Model;
+use WanaKin\Auth\Mail\PasswordReset;
+use WanaKin\Auth\Mail\EmailAdded;
 
 class AuthService {
     /**

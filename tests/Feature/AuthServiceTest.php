@@ -5,8 +5,8 @@ use WanaKin\Auth\Facades\AuthService;
 use WanaKin\Auth\EmailVerification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
-use WanaKin\Auth\EmailAdded;
-use WanaKin\Auth\PasswordReset;
+use WanaKin\Auth\Mail\EmailAdded;
+use WanaKin\Auth\Mail\PasswordReset;
 use Tests\Fixtures\User;
 
 class AuthServiceTest extends FeatureTestCase {

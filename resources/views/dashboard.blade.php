@@ -4,6 +4,11 @@
     <div class="row align-items-center min-vh-100">
 	<div class="mx-auto w-100">
 	    @include( 'auth::errors' )
+	    @if ( Session::has( 'email_verification_required' ) )
+		<div class="alert alert-danger">
+		    That feature requires a verified email.
+		</div>
+	    @endif
 	    @if ( Session::has( 'verification_send' ) )
 		<div class="alert alert-success">
 		    A verification email has been sent.
