@@ -15,6 +15,10 @@
 	    <label for="login-password">Password</label>
 	    <input class="form-control" type="password" id="login-password" name="password" required>
 	</div>
+	<div class="form-check">
+	    <input class="form-check-input" type="checkbox" name="remember" id="remember-me">
+	    <label class="form-check-label" for="remember-me">Remember Me</label>
+	</div>
 	<input class="d-block btn btn-primary" type="submit" value="Login">
 	<a href="{{ route( 'auth.register' ) }}">Don't have an account?</a><br/>
 	<a href="{{ route( 'auth.password.forgot' ) }}">Lost Your Password?</a>

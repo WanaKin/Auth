@@ -41,7 +41,8 @@ class AuthController extends Controller {
     private function loginAndRedirect( Authenticatable $user, string $state = 'login', ?string $route = NULL ) : RedirectResponse {
         // Log the user in if not already
         if ( !( ( $currentUser = request()->user() ) && $currentUser->id == $user->id ) ) {
-            Auth::login( $user );
+            // Use remember if it exists in the request
+            Auth::login( $user, request()->has( 'remember' ) );
         }
 
         // If a route is provided, use that

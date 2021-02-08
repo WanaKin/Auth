@@ -65,10 +65,33 @@ class AuthService {
      * Check if an email is available
      *
      * @param string $email
+     * @param ?Model $user = NULL
      * @return bool
      */
-    public function emailAvailable( string $email ) : bool {
-        return $this->getAuthenticatable()::where( 'email', $email )->doesntExist();
+    public function emailAvailable( string $email, ?Model $user = NULL ) : bool {
+        // Check for the email in the users table
+        $query = $this->getAuthenticatable()::where( 'email', $email );
+
+        // If a user is provided, exempt them from the search
+        if ( $user ) {
+            $query->where( 'id', '!=', $user->id );
+        }
+
+        $usersTable = $query->doesntExist();
+
+        // Check for the email in the pending table
+        $query = EmailVerification::where( 'email', $email );
+
+        if ( $user ) {
+            $query->where( function ( $query ) use ( $user ) {
+                    $query->where( 'verifiable_type', '!=', get_class( $user ) )
+                          ->where( 'verifiable_id', '!=', $user->id );
+                } );
+        }
+
+        $pendingTable = $query->doesntExist();
+
+        return $usersTable && $pendingTable;
     }
 
     /**

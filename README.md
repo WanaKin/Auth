@@ -127,3 +127,11 @@ Currently, the following events are dispatched (in the `Illuminate\Auth\Events` 
 * `Login` on user login
 * `Logout` on user logout
 * `PassowrdReset` when a user successfully resets their password
+
+## Customizing Views
+This package sets up some default views using the Bootstrap CSS framework. In order to customize the views while still utilizing the controller, you can create the corresponding views in `resources/views/vendor/auth/`. You can look at the `resources/views` folder of this package to see the views you can override. For example, to override the packages `login` view, you can create the file `resources/views/vendor/auth/login.blade.php` in your Laravel application and your view will be displayed instead of the default.
+
+## Creating your own controller
+In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead. You'll also need to add your own routes for the new controller. The ability to specify a custom controller for the default routes is in the works.
+
+Alternatively, you can choose to extend the default controller `WanaKin\Auth\AuthController` and only change the methods that deviate from the package's built-in functionality.

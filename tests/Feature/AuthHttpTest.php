@@ -53,7 +53,7 @@ class AuthHttpTest extends FeatureTestCase {
         $response = $this->post( '/register', [
             'name' => $user->name,
             'email' => $user->email,
-            'password' => $password
+            'password' => $password,
         ] );
 
         // Assert a redirect
@@ -112,7 +112,7 @@ class AuthHttpTest extends FeatureTestCase {
         // Attempt a login
         $response = $this->post( '/login', [
             'email' => $user->email,
-            'password' => $password
+            'password' => $password,
         ] );
 
         // Assert the user was redirected properly

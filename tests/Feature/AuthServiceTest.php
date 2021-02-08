@@ -60,11 +60,22 @@ class AuthServiceTest extends FeatureTestCase {
             'email' => $email
         ] );
 
+        // Add a pending email change
+        $user->verifications()->create( [
+            'email' => 'test2@example.com',
+            'verification_slug' => 'abc123'
+        ] );
+
         // Assert the email is not valid
         $this->assertFalse( AuthService::emailAvailable( $user->email ) );
+        $this->assertFalse( AuthService::emailAvailable( 'test2@example.com' ) );
 
         // Assert another email is valid
         $this->assertTrue( AuthService::emailAvailable( 'anothertest@example.com' ) );
+
+        // Assert the user can update the email to themselves
+        $this->assertTrue( AuthService::emailAvailable( $user->email, $user ) );
+        $this->assertTrue( AuthService::emailAvailable( 'test2@example.com', $user ) );
     }
 
     /**
