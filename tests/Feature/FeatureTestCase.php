@@ -5,6 +5,7 @@ use Orchestra\Testbench\TestCase;
 use Tests\Fixtures\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use WanaKin\Auth\AuthServiceProvider;
+use Laravel\Sanctum\SanctumServiceProvider;
 
 class FeatureTestCase extends TestCase {
     use WithFaker;
@@ -45,6 +46,6 @@ class FeatureTestCase extends TestCase {
      * @return array
      */
     protected function getPackageProviders( $app ) {
-        return [AuthServiceProvider::class];
+        return [AuthServiceProvider::class, SanctumServiceProvider::class];
     }
 }

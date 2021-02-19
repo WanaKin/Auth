@@ -25,6 +25,11 @@ class AuthServiceProvider extends ServiceProvider {
         // Load views
         $this->loadViewsFrom( __DIR__ . '/../resources/views', 'auth' );
 
+        // Load API routes only if API is enabled in the config
+        if ( config( 'auth.routes.api', FALSE ) === TRUE ) {
+            $this->loadRoutesFrom( __DIR__ . '/../routes/api.php' );
+        }
+
         // Load routes
         $this->loadRoutesFrom( __DIR__ . '/../routes/auth.php' );
     }

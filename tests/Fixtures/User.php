@@ -3,9 +3,10 @@ namespace Tests\Fixtures;
 
 use Illuminate\Foundation\Auth\User as Model;
 use WanaKin\Auth\WanaKinAuth;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Model {
-    use WanaKinAuth;
+    use WanaKinAuth, HasApiTokens;
     
     /**
      * Properties that can't be mass assigned

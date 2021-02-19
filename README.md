@@ -135,3 +135,41 @@ This package sets up some default views using the Bootstrap CSS framework. In or
 In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead. You'll also need to add your own routes for the new controller. The ability to specify a custom controller for the default routes is in the works.
 
 Alternatively, you can choose to extend the default controller `WanaKin\Auth\AuthController` and only change the methods that deviate from the package's built-in functionality.
+
+## API Routes
+If you'd like to use API authentication, then add the following to your `config/auth.php`:
+
+```php
+'routes' => [
+	'api' => TRUE
+]
+```
+
+And be sure to install `laravel/sanctum` via composer. Currently, two routes are set via the API:
+
+|Verb|Name|Route|
+|---|-----|-----|
+|POST|auth.register|/api/register|
+|POST|auth.login|/api/login|
+
+In order to log in, send the `email` and `password` via JSON. Upon a successfull login, you'll receive a response that looks like this:
+
+```json
+{
+	'message': 'Log in successful',
+	'token': 'abc123'
+}
+```
+
+Be sure to store the token and send it in the `Authorization` header on subsequent requests.
+
+Registration works similiarly; send a payload with `email`, `name`, and `'password`. Upon a successfull registration, you'll receive a response similar to:
+
+```json
+{
+	'message': 'Registration successful',
+	'token': 'abc123'
+}
+```
+
+In both cases, any invalid parameters will result in a 422 error explaining which fields are incorrect and why.
