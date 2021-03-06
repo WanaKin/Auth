@@ -126,7 +126,7 @@ Currently, the following events are dispatched (in the `Illuminate\Auth\Events` 
 * `Registered` on user registration
 * `Login` on user login
 * `Logout` on user logout
-* `PassowrdReset` when a user successfully resets their password
+* `PasswordReset` when a user successfully resets their password
 
 ## Customizing Views
 This package sets up some default views using the Bootstrap CSS framework. In order to customize the views while still utilizing the controller, you can create the corresponding views in `resources/views/vendor/auth/`. You can look at the `resources/views` folder of this package to see the views you can override. For example, to override the packages `login` view, you can create the file `resources/views/vendor/auth/login.blade.php` in your Laravel application and your view will be displayed instead of the default.
@@ -145,6 +145,15 @@ If you'd like to use API authentication, then add the following to your `config/
 ]
 ```
 
+You can also disable the web routes:
+
+```php
+'routes' => [
+	'api' => TRUE,
+	'web' => FALSE
+]
+```
+
 And be sure to install `laravel/sanctum` via composer. Currently, two routes are set via the API:
 
 |Verb|Name|Route|
@@ -156,8 +165,8 @@ In order to log in, send the `email` and `password` via JSON. Upon a successfull
 
 ```json
 {
-	'message': 'Log in successful',
-	'token': 'abc123'
+	"message": "Log in successful",
+	"token": "abc123"
 }
 ```
 
@@ -167,8 +176,8 @@ Registration works similiarly; send a payload with `email`, `name`, and `'passwo
 
 ```json
 {
-	'message': 'Registration successful',
-	'token': 'abc123'
+	"message": "Registration successful",
+	"token": "abc123"
 }
 ```
 
