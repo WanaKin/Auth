@@ -2,8 +2,6 @@
 namespace Tests\Feature;
 
 use WanaKin\Auth\Facades\AuthService;
-use Illuminate\Support\Facades\Auth;
-use Tests\Fixtures\User;
 use WanaKin\Auth\EmailVerification;
 use WanaKin\Auth\PasswordResetToken;
 use Illuminate\Support\Facades\Event;
@@ -17,9 +15,10 @@ class AuthHttpTest extends FeatureTestCase {
      * @param  \Illuminate\Foundation\Application  $app
      * @return void
      */
-    protected function getEnvironmentSetUp( $app ) {
+    protected function getEnvironmentSetUp($app)
+    {
         // This can be hard coded because its just for testing
-        $app['config']->set( 'app.key', 'base64:tGJVkbucyT3kXa+UU9hqW28KRYNFYh+5cTTxxOUQRVw=' );
+        $app['config']->set('app.key', 'base64:tGJVkbucyT3kXa+UU9hqW28KRYNFYh+5cTTxxOUQRVw=');
     }
 
     /**
@@ -27,40 +26,42 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testLoginRouteName() {
+    public function testLoginRouteName()
+    {
         // Try and visit the dashboard without logging in
-        $response = $this->get( '/dashboard/auth' );
+        $response = $this->get('/dashboard/auth');
 
         // Assert a redirect to /login
-        $response->assertRedirect( '/login' );
+        $response->assertRedirect('/login');
     }
-    
+
     /**
      * Test registering a user
      *
      * @return void
      */
-    public function testRegister() {
+    public function testRegister()
+    {
         // Create a user
         $user = $this->createUser();
         $password = $this->faker->password;
 
         // Assert the AuthService is properly called
-        AuthService::shouldReceive( 'register' )->once()->withArgs( [$user->name, $user->email, $password] )->andReturns( $user );
-        AuthService::shouldReceive( 'emailAvailable' )->once()->withArgs( [$user->email] )->andReturns( TRUE );
+        AuthService::shouldReceive('register')->once()->withArgs([$user->name, $user->email, $password])->andReturns($user);
+        AuthService::shouldReceive('emailAvailable')->once()->withArgs([$user->email])->andReturns(TRUE);
 
         // Register
-        $response = $this->post( '/register', [
+        $response = $this->post('/register', [
             'name' => $user->name,
             'email' => $user->email,
             'password' => $password,
-        ] );
+        ]);
 
         // Assert a redirect
         $response->assertRedirect();
 
         // Assert the user has been logged in
-        $this->assertAuthenticatedAs( $user );
+        $this->assertAuthenticatedAs($user);
     }
 
 
@@ -69,60 +70,62 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testRegistrationValidation() {
+    public function testRegistrationValidation()
+    {
         // Set a unique constraint on the name
-        config()->set( 'auth.validation.register', [
+        config()->set('auth.validation.register', [
             'name' => 'required|unique:users,name'
-        ] );
+        ]);
 
         // Create a user
         $user = $this->createUser();
 
         // Attempt to create a user with the same name
-        $response = $this->post( '/register', [
+        $response = $this->post('/register', [
             'name' => $user->name,
             'email' => $this->faker->email,
             'password' => 'password'
-        ] );
+        ]);
 
         // Assert a name validation error is set
-        $response->assertSessionHasErrors( ['name'] );
+        $response->assertSessionHasErrors(['name']);
     }
 
-    
+
     /**
      * Test logging in
      *
      * @return void
      */
-    public function testLogin() {
+    public function testLogin()
+    {
         // Create a user
         $user = $this->createUser();
         $password = 'password';
 
         // Mock the AuthService
-        AuthService::shouldReceive( 'login' )->once()->withArgs( [$user->email, $password] )->andReturn( $user );
+        AuthService::shouldReceive('login')->once()->withArgs([$user->email, $password])->andReturn($user);
 
         // Mock the event facade
         Event::fake();
 
         // Set the redirect
-        config()->set( 'auth.redirect', '/thisisatest' );
+        config()->set('auth.redirect', '/thisisatest');
 
         // Attempt a login
-        $response = $this->post( '/login', [
+        $response = $this->post('/login', [
             'email' => $user->email,
             'password' => $password,
-        ] );
+        ]);
 
         // Assert the user was redirected properly
-        $response->assertRedirect( '/thisisatest' );
+        $response->assertRedirect('/thisisatest');
 
         // Assert the user has been logged in
-        $this->assertAuthenticatedAs( $user );
+        $this->assertAuthenticatedAs($user);
 
         // Assert the event was dispatched
-        Event::assertDispatched( Login::class );
+        Event::assertDispatched(Login::class);
     }
 
     /**
@@ -130,7 +133,8 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testUpdate() {
+    public function testUpdate()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -139,17 +143,17 @@ class AuthHttpTest extends FeatureTestCase {
         $email = $this->faker->email;
 
         // Assert the service is called properly
-        AuthService::shouldReceive( 'update' )->once()->withArgs( [$user, $name, $email] );
-        AuthService::shouldReceive( 'emailAvailable' )->once()->withArgs( [$email] )->andReturn( TRUE );
+        AuthService::shouldReceive('update')->once()->withArgs([$user, $name, $email]);
+        AuthService::shouldReceive('emailAvailable')->once()->withArgs([$email])->andReturn(TRUE);
 
         // Sign in
-        $this->actingAs( $user );
+        $this->actingAs($user);
 
         // Update
-        $response = $this->post( '/dashboard/auth', [
+        $response = $this->post('/dashboard/auth', [
             'name' => $name,
             'email' => $email
-        ] );
+        ]);
 
         // Assert the user is redirected back to the dashboard
         $response->assertRedirect();
@@ -160,26 +164,27 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testUpdateValidation() {
+    public function testUpdateValidation()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Create a new constraint on the name
-        config()->set( 'auth.validation.update', [
+        config()->set('auth.validation.update', [
             'name' => 'required|min:150'
-        ] );
+        ]);
 
         // Log in
-        $this->actingAs( $user );
+        $this->actingAs($user);
 
         // Update the user
-        $response = $this->post( '/dashboard/auth', [
+        $response = $this->post('/dashboard/auth', [
             'name' => $user->name,
             'email' => $user->email
-        ] );
+        ]);
 
         // Assert a validation error has been created
-        $response->assertSessionHasErrors( ['name'] );
+        $response->assertSessionHasErrors(['name']);
     }
 
     /**
@@ -187,29 +192,30 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testVerifyEmail() {
+    public function testVerifyEmail()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Create an email verification database entry
-        $emailVerification = $user->verifications()->create( [
+        $emailVerification = $user->verifications()->create([
             'email' => $user->email,
             'verification_slug' => 'myslug'
-        ] );
+        ]);
 
         // Assert the verify method will be called on the service
-        AuthService::shouldReceive( 'verify' )->once()->withArgs( function ( EmailVerification $emailVerificationArg ) use ( $emailVerification ) {
-                return $emailVerification->is( $emailVerificationArg );
-            } )->andReturn( TRUE );
+        AuthService::shouldReceive('verify')->once()->withArgs(function (EmailVerification $emailVerificationArg) use ($emailVerification) {
+                return $emailVerification->is($emailVerificationArg);
+            })->andReturn(TRUE);
 
         // Attempt to verify the email
-        $response = $this->get( '/verify-email/' . $emailVerification->verification_slug );
+        $response = $this->get('/verify-email/' . $emailVerification->verification_slug);
 
         // Assert a redirect
         $response->assertRedirect();
 
         // Assert the user was logged in
-        $this->assertAuthenticatedAs( $user );
+        $this->assertAuthenticatedAs($user);
     }
 
     /**
@@ -217,7 +223,8 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testUpdatePassword() {
+    public function testUpdatePassword()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -225,16 +232,16 @@ class AuthHttpTest extends FeatureTestCase {
         $password = $this->faker->password;
 
         // Assert the updatePassword method is called on the service
-        AuthService::shouldReceive( 'updatePassword' )->once()->withArgs( [$user, $password] );
+        AuthService::shouldReceive('updatePassword')->once()->withArgs([$user, $password]);
 
         // Log in
-        $this->actingAs( $user );
+        $this->actingAs($user);
 
         // Update the password
-        $response = $this->post( '/dashboard/auth/password', [
+        $response = $this->post('/dashboard/auth/password', [
             'password' => $password,
             'password-verify' => $password
-        ] );
+        ]);
 
         // Assert a redirect
         $response->assertRedirect();
@@ -245,17 +252,18 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testForgotPassword() {
+    public function testForgotPassword()
+    {
         // Create a user
         $user = $this->createUser();
-        
+
         // Assert the service is called
-        AuthService::shouldReceive( 'sendPasswordResetLink' )->once()->withArgs( [$user->email] );
+        AuthService::shouldReceive('sendPasswordResetLink')->once()->withArgs([$user->email]);
 
         // Request a password reset link
-        $response = $this->post( '/forgot-password', [
+        $response = $this->post('/forgot-password', [
             'email' => $user->email
-        ] );
+        ]);
 
         // Assert a redirect
         $response->assertRedirect();
@@ -266,26 +274,27 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testResetPassword() {
+    public function testResetPassword()
+    {
         // Create a user and reset link
         $user = $this->createUser();
-        $passwordResetToken = $user->passwordResetTokens()->create( [
+        $passwordResetToken = $user->passwordResetTokens()->create([
             'token' => $this->faker->slug
-        ] );
+        ]);
 
         // Generate a password
         $password = $this->faker->password;
 
         // Assert the service is called
-        AuthService::shouldReceive( 'updatePassword' )->once()->withArgs( function ( PasswordResetToken $passwordResetTokenArg, string $passwordArg ) use ( $passwordResetToken, $password ) {
-                return $passwordResetToken->is( $passwordResetTokenArg ) && $passwordArg === $password;
-            } );
+        AuthService::shouldReceive('updatePassword')->once()->withArgs(function (PasswordResetToken $passwordResetTokenArg, string $passwordArg) use ($passwordResetToken, $password) {
+                return $passwordResetToken->is($passwordResetTokenArg) && $passwordArg === $password;
+            });
 
         // Reset the password
-        $response = $this->post( '/password-reset/' . $passwordResetToken->token, [
+        $response = $this->post('/password-reset/' . $passwordResetToken->token, [
             'password' => $password,
             'password-verify' => $password
-        ] );
+        ]);
 
         // Assert the response is a redirect
         $response->assertRedirect();
@@ -296,16 +305,17 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testResend() {
+    public function testResend()
+    {
         // Create new user
         $user = $this->createUser();
 
         // Assert the AuthService is called
-        AuthService::shouldReceive( 'resend' )->once()->withArgs( [$user] )->andReturn( TRUE );
+        AuthService::shouldReceive('resend')->once()->withArgs([$user])->andReturn(TRUE);
 
         // Request to resend the verification email
-        $this->actingAs( $user );
-        $response = $this->get( '/dashboard/auth/resend' );
+        $this->actingAs($user);
+        $response = $this->get('/dashboard/auth/resend');
 
         $response->assertRedirect();
     }
@@ -315,7 +325,8 @@ class AuthHttpTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testLogout() {
+    public function testLogout()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -323,10 +334,10 @@ class AuthHttpTest extends FeatureTestCase {
         Event::fake();
 
         // Log in
-        $this->actingAs( $user );
+        $this->actingAs($user);
 
         // Logout
-        $response = $this->get( '/logout' );
+        $response = $this->get('/logout');
 
         // Assert a redirect
         $response->assertRedirect();
@@ -335,6 +346,6 @@ class AuthHttpTest extends FeatureTestCase {
         $this->assertGuest();
 
         // Assert the logout event was dispatched
-        Event::assertDispatched( Logout::class );
+        Event::assertDispatched(Logout::class);
     }
 }

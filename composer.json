@@ -2,6 +2,7 @@
     "name": "wanakin/auth",
     "description": "Simple Laravel authentication",
     "license": "MIT",
+    "version": "0.0.4-beta",
     "authors": [
         {
             "name": "WanaKin",
@@ -9,21 +10,21 @@
         }
     ],
     "extra": {
-	"laravel": {
-	    "providers": [
-		"WanaKin\\Auth\\AuthServiceProvider"
-	    ]
-	}
+	      "laravel": {
+	          "providers": [
+		            "WanaKin\\Auth\\AuthServiceProvider"
+	          ]
+	      }
     },
     "autoload": {
-	"psr-4": {
-	    "WanaKin\\Auth\\": "src/"
-	}
+	      "psr-4": {
+	          "WanaKin\\Auth\\": "src/"
+	      }
     },
     "autoload-dev": {
-	"psr-4": {
-	    "Tests\\": "tests/"
-	}
+	      "psr-4": {
+	          "Tests\\": "tests/"
+	      }
     },
     "require-dev": {
         "orchestra/testbench": "^6.7",

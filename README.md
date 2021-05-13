@@ -131,6 +131,12 @@ Currently, the following events are dispatched (in the `Illuminate\Auth\Events` 
 ## Customizing Views
 This package sets up some default views using the Bootstrap CSS framework. In order to customize the views while still utilizing the controller, you can create the corresponding views in `resources/views/vendor/auth/`. You can look at the `resources/views` folder of this package to see the views you can override. For example, to override the packages `login` view, you can create the file `resources/views/vendor/auth/login.blade.php` in your Laravel application and your view will be displayed instead of the default.
 
+You can also use the `vendor:pubish` command to publish the package's views so you can modify them instead of starting from scratch.
+
+```php
+php artisan vendor:publish --tag=auth
+```
+
 ## Creating your own controller
 In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead. You'll also need to add your own routes for the new controller. The ability to specify a custom controller for the default routes is in the works.
 

@@ -2,7 +2,6 @@
 namespace Tests\Feature;
 
 use WanaKin\Auth\Facades\AuthService;
-use WanaKin\Auth\EmailVerification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use WanaKin\Auth\Mail\EmailAdded;
@@ -18,34 +17,35 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testRegister() {
+    public function testRegister()
+    {
         // Fake the event facade
         Event::fake();
-        
+
         // Generate details for the user
         $name = $this->faker->name;
         $email = $this->faker->email;
         $password = $this->faker->password;
 
         // Fake the Hash facade
-        Hash::shouldReceive( 'make' )->once()->withArgs( [$password] )->andReturns( 'hashed' );
+        Hash::shouldReceive('make')->once()->withArgs([$password])->andReturns('hashed');
 
         // Assert the resend method will be called
-        AuthService::shouldReceive( 'resend' )->once();
+        AuthService::shouldReceive('resend')->once();
         AuthService::makePartial();
 
         // Assert the model is returned
-        $this->assertNotNull( AuthService::register( $name, $email, $password ) );
+        $this->assertNotNull(AuthService::register($name, $email, $password));
 
         // Assert the model was created
-        $this->assertDatabaseHas( 'users', [
+        $this->assertDatabaseHas('users', [
             'name' => $name,
             'email' => $email,
             'password' => 'hashed'
-        ] );
+        ]);
 
         // Assert the Registered event was fired
-        Event::assertDispatched( Registered::class );
+        Event::assertDispatched(Registered::class);
     }
 
     /**
@@ -53,29 +53,30 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testEmailAvailable() {
+    public function testEmailAvailable()
+    {
         // Create a user
         $email = 'test@example.com';
-        $user = $this->createUser( [
+        $user = $this->createUser([
             'email' => $email
-        ] );
+        ]);
 
         // Add a pending email change
-        $user->verifications()->create( [
+        $user->verifications()->create([
             'email' => 'test2@example.com',
             'verification_slug' => 'abc123'
-        ] );
+        ]);
 
         // Assert the email is not valid
-        $this->assertFalse( AuthService::emailAvailable( $user->email ) );
-        $this->assertFalse( AuthService::emailAvailable( 'test2@example.com' ) );
+        $this->assertFalse(AuthService::emailAvailable($user->email));
+        $this->assertFalse(AuthService::emailAvailable('test2@example.com'));
 
         // Assert another email is valid
-        $this->assertTrue( AuthService::emailAvailable( 'anothertest@example.com' ) );
+        $this->assertTrue(AuthService::emailAvailable('anothertest@example.com'));
 
         // Assert the user can update the email to themselves
-        $this->assertTrue( AuthService::emailAvailable( $user->email, $user ) );
-        $this->assertTrue( AuthService::emailAvailable( 'test2@example.com', $user ) );
+        $this->assertTrue(AuthService::emailAvailable($user->email, $user));
+        $this->assertTrue(AuthService::emailAvailable('test2@example.com', $user));
     }
 
     /**
@@ -83,7 +84,8 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testResend() {
+    public function testResend()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -91,12 +93,12 @@ class AuthServiceTest extends FeatureTestCase {
         Mail::fake();
 
         // Send the verification email
-        AuthService::resend( $user );
+        AuthService::resend($user);
 
         // Assert the email was sent
-        Mail::assertSent( EmailAdded::class, function ( $mail ) use ( $user ) {
-                return $mail->hasTo( $user->email );
-            } );
+        Mail::assertSent(EmailAdded::class, function ($mail) use ($user) {
+                return $mail->hasTo($user->email);
+            });
     }
 
     /**
@@ -104,7 +106,8 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testResendOther() {
+    public function testResendOther()
+    {
         // Create a user an email
         $user = $this->createUser();
         $email = $this->faker->email;
@@ -113,12 +116,12 @@ class AuthServiceTest extends FeatureTestCase {
         Mail::fake();
 
         // Send the verification email to the other address
-        AuthService::resend( $user, $email );
+        AuthService::resend($user, $email);
 
         // Assert the email was sent to the right address
-        Mail::assertSent( EmailAdded::class, function ( $mail ) use ( $email ) {
-                return $mail->hasTo( $email );
-            } );
+        Mail::assertSent(EmailAdded::class, function ($mail) use ($email) {
+                return $mail->hasTo($email);
+            });
     }
 
     /**
@@ -126,12 +129,13 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testValidLogin() {
+    public function testValidLogin()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Attempt to login with the correct password
-        $this->assertEquals( $user->id, AuthService::login( $user->email, 'password' )?->id );
+        $this->assertEquals($user->id, AuthService::login($user->email, 'password')?->id);
     }
 
     /**
@@ -139,12 +143,13 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testInvalidLogin() {
+    public function testInvalidLogin()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Attempt to login with the incorrect password
-        $this->assertNull( AuthService::login( $user->email, 'abc123' ) );
+        $this->assertNull(AuthService::login($user->email, 'abc123'));
     }
 
     /**
@@ -152,32 +157,33 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testUpdateEmail() {
+    public function testUpdateEmail()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Create a new name and email
         $name = $this->faker->name;
         $email = $this->faker->email;
-        
+
         // Assert that a new email will be sent
-        AuthService::shouldReceive( 'resend' )->once()->withArgs( function ( User $userArg, string $emailArg ) use ( $user, $email ) {
+        AuthService::shouldReceive('resend')->once()->withArgs(function (User $userArg, string $emailArg) use ($user, $email) {
                 return $userArg->id === $user->id && $emailArg === $email;
-            } );
+            });
         AuthService::makePartial();
 
         // Update only the name
-        AuthService::update( $user, $name, $user->email );
+        AuthService::update($user, $name, $user->email);
 
         // Assert the model was updated
-        $this->assertDatabaseHas( 'users', [
+        $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => $name,
             'email' => $user->email
-        ] );
+        ]);
 
         // Update the email
-        AuthService::update( $user, $name, $email );
+        AuthService::update($user, $name, $email);
     }
 
     /**
@@ -185,7 +191,8 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testUpdatePassword() {
+    public function testUpdatePassword()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -193,16 +200,16 @@ class AuthServiceTest extends FeatureTestCase {
         $password = $this->faker->password;
 
         // Assert the password is hashed
-        Hash::shouldReceive( 'make' )->once()->withArgs( [$password] )->andReturns( 'hashed' );
+        Hash::shouldReceive('make')->once()->withArgs([$password])->andReturns('hashed');
 
         // Update the password
-        AuthService::updatePassword( $user, $password );
+        AuthService::updatePassword($user, $password);
 
         // Assert the database was updated
-        $this->assertDatabaseHas( 'users', [
+        $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'password' => 'hashed'
-        ] );
+        ]);
     }
 
     /**
@@ -210,7 +217,8 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testResetPassword() {
+    public function testResetPassword()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -218,17 +226,17 @@ class AuthServiceTest extends FeatureTestCase {
         Event::fake();
 
         // Create a password reset token
-        $passwordResetToken = $user->passwordResetTokens()->create( [
+        $passwordResetToken = $user->passwordResetTokens()->create([
             'token' => $this->faker->slug
-        ] );
+        ]);
 
         // Reset the password
-        $this->assertTrue( AuthService::updatePassword( $passwordResetToken, 'abc123' ) );
+        $this->assertTrue(AuthService::updatePassword($passwordResetToken, 'abc123'));
 
         // Assert the event was fired
-        Event::assertDispatched( function ( PasswordResetEvent $event ) use ( $user ) {
-                return $user->is( $event->user );
-            } );
+        Event::assertDispatched(function (PasswordResetEvent $event) use ($user) {
+                return $user->is($event->user);
+            });
     }
 
     /**
@@ -236,51 +244,52 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testVerify() {
+    public function testVerify()
+    {
         // Create a user
         $user = $this->createUser();
 
         // Assert the email won't validate with an old verification instance
-        $emailVerification = $user->verifications()->create( [
+        $emailVerification = $user->verifications()->create([
             'verification_slug' => 'qwerty',
             'email' => $this->faker->email,
-            'created_at' => now()->subHours( 4 )
-        ] );
-        $this->assertFalse( AuthService::verify( $emailVerification ) );
+            'created_at' => now()->subHours(4)
+        ]);
+        $this->assertFalse(AuthService::verify($emailVerification));
 
         // Update the timestamp to now
-        $emailVerification->update( [
+        $emailVerification->update([
             'created_at' => now()
-        ] );
+        ]);
 
         // Set the user's email verification to none
-        $user->update( [
+        $user->update([
             'email_verified_at' => NULL
-        ] );
+        ]);
 
         // Verify the user's email
-        $this->assertTrue( AuthService::verify( $emailVerification ) );
+        $this->assertTrue(AuthService::verify($emailVerification));
 
         // Assert the user's email was updated
-        $this->assertDatabaseHas( 'users', [
+        $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'email' => $emailVerification->email,
-        ] );
+        ]);
 
         // Assert the verified at date was updated
         $user->refresh();
-        $this->assertNotNull( $user->email_verified_at );
+        $this->assertNotNull($user->email_verified_at);
 
         // Set the user's verification timestamp in the future
-        $user->update( [
-            'email_verified_at' => now()->addDays( 7 ),
-        ] );
+        $user->update([
+            'email_verified_at' => now()->addDays(7),
+        ]);
 
         // Reload the relationship
-        $emailVerification->load( 'verifiable' );
-        
+        $emailVerification->load('verifiable');
+
         // Assert the email won't validate
-        $this->assertFalse( AuthService::verify( $emailVerification ) );
+        $this->assertFalse(AuthService::verify($emailVerification));
     }
 
     /**
@@ -288,7 +297,8 @@ class AuthServiceTest extends FeatureTestCase {
      *
      * @return void
      */
-    public function testSendPasswordRestLink() {
+    public function testSendPasswordRestLink()
+    {
         // Create a user
         $user = $this->createUser();
 
@@ -296,11 +306,11 @@ class AuthServiceTest extends FeatureTestCase {
         Mail::fake();
 
         // Request a password reset link
-        AuthService::sendPasswordResetLink( $user->email );
+        AuthService::sendPasswordResetLink($user->email);
 
         // Assert the email was sent
-        Mail::assertSent( PasswordReset::class, function ( $mail ) use ( $user ) {
-                return $mail->hasTo( $user->email );
-            } );
+        Mail::assertSent(PasswordReset::class, function ($mail) use ($user) {
+                return $mail->hasTo($user->email);
+            });
     }
 }
