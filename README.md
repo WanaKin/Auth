@@ -136,6 +136,19 @@ You can also use the `vendor:pubish` command to publish the package's views so y
 ```php
 php artisan vendor:publish --tag=auth
 ```
+## User defaults
+To set defaults values for users upon registration, consider using the attributes property on the `User` model:
+
+```php
+class User
+{
+    ...
+    protected $attributes = [
+        'role' => 'customer'
+    ];
+    ...
+}
+```
 
 ## Creating your own controller
 In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead. You'll also need to add your own routes for the new controller. The ability to specify a custom controller for the default routes is in the works.
@@ -188,3 +201,6 @@ Registration works similiarly; send a payload with `email`, `name`, and `'passwo
 ```
 
 In both cases, any invalid parameters will result in a 422 error explaining which fields are incorrect and why.
+
+## Custom routes
+You can also set both the api and web routes to false, then create your own controller either using the `AuthService` directly or by extending `WanaKin\Auth\AuthController`. You can then set up your routes however you wish. However, if you choose to go this route, be sure to add tests for your custom controller!

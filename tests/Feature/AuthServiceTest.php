@@ -49,6 +49,35 @@ class AuthServiceTest extends FeatureTestCase {
     }
 
     /**
+     * Test registering a user with defaults passed
+     *
+     * @return void
+     */
+    public function testRegisterWithDefaults()
+    {
+        // Don't actually call resend
+        AuthService::shouldReceive('resend')->once();
+        AuthService::makePartial();
+
+        // Generate details for the user
+        $name = $this->faker->name;
+        $email = $this->faker->email;
+        $password = $this->faker->password;
+
+        // Call the register method
+        AuthService::register($name, $email, $password, [
+            'password' => 'asdf'
+        ]);
+
+        // Assert the password passed via defaults was added instead
+        $this->assertDatabaseHas('users', [
+            'name' => $name,
+            'email' => $email,
+            'password' => 'asdf'
+        ]);
+    }
+
+    /**
      * Test checking the availablility of an email
      *
      * @return void

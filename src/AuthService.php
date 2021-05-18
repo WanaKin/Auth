@@ -20,7 +20,7 @@ class AuthService {
      * @param  int $size The size of the string to generate.
      * @return string
      */
-    private function random(int $size) : string
+    private function random($size)
     {
         return bin2hex(random_bytes($size / 2));
     }
@@ -41,16 +41,22 @@ class AuthService {
      * @param  string $name The registering user's name
      * @param  string $email The registering user's email
      * @param  string $password The registering user's plaintext password
+     * @param array $defaults An array to set any additional default values
      * @return ?Model
      */
-    public function register(string $name, string $email, string $password) : ?Model
+    public function register($name, $email, $password, $defaults = [])
     {
-        // Create the user
-        $user = $this->getAuthenticatable()::create([
+        // Merge the credentials
+        $creds = [
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($password)
-        ]);
+        ];
+
+        $creds = array_merge($creds, $defaults);
+
+        // Create the user
+        $user = $this->getAuthenticatable()::create($creds);
 
         // If the user was created
         if ($user) {
@@ -69,11 +75,11 @@ class AuthService {
     /**
      * Check if an email is available
      *
-     * @param  string $email The emaill to check
+     * @param  string $email The email to check
      * @param  ?Model $user Pass a user to exclude them from the availability query
      * @return bool
      */
-    public function emailAvailable(string $email, ?Model $user = NULL) : bool
+    public function emailAvailable($email, $user = null)
     {
         // Check for the email in the users table
         $query = $this->getAuthenticatable()::where('email', $email);
@@ -109,7 +115,7 @@ class AuthService {
      * @param  string $email Set a custom email to send to an address other than the one on record
      * @return void
      */
-    public function resend(Model $user, string $email = '') : void
+    public function resend($user, $email = '')
     {
         // Fallback to the user's current email address
         $email = $email ?: $user->email;
@@ -136,7 +142,7 @@ class AuthService {
      * @param  EmailVerification $emailVerification The email verification token to check
      * @return bool
      */
-    public function verify(EmailVerification $emailVerification) : bool {
+    public function verify($emailVerification) {
         // Make sure the email is new enough
         if ($emailVerification->created_at->gte(now()->subHours(2))) {
             // Only update if the user's current verified timestamp is older than the current one
@@ -165,7 +171,7 @@ class AuthService {
      * @param  bool $remember Whether or not to set the remember token. Defaults to false.
      * @return ?Model
      */
-    public function login(string $email, string $password, bool $remember = FALSE) : ?Model
+    public function login($email, $password, $remember = false)
     {
         // Try to find the model
         if ($user = $this->getAuthenticatable()::where('email', $email)->first()) {
@@ -188,7 +194,7 @@ class AuthService {
      * @param  string $email
      * @return void
      */
-    public function update(Model $user, string $name, string $email) : void
+    public function update($user, $name, $email)
     {
         // If the email has changed, send a verification email
         if ($email !== $user->email) {
@@ -208,7 +214,7 @@ class AuthService {
      * @param  string $password The new plaintext password
      * @return bool
      */
-    public function updatePassword($user, string $password) : bool
+    public function updatePassword($user, $password)
     {
         // If provided a password reset token, serialize the user and delete the token
         if ($user instanceof PasswordResetToken) {
@@ -240,7 +246,7 @@ class AuthService {
      * @param  string $email The email to send the URL to
      * @return void
      */
-    public function sendPasswordResetLink(string $email) : void
+    public function sendPasswordResetLink($email)
     {
         // Find the user
         if ($user = $this->getAuthenticatable()::where('email', $email)->first()) {
