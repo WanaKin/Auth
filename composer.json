@@ -2,7 +2,7 @@
     "name": "wanakin/auth",
     "description": "Simple Laravel authentication",
     "license": "MIT",
-    "version": "0.0.6-beta",
+    "version": "0.0.7-beta",
     "authors": [
         {
             "name": "WanaKin",
@@ -29,6 +29,7 @@
     "require-dev": {
         "orchestra/testbench": "^6.7",
         "phpunit/phpunit": "^9.5",
-        "laravel/sanctum": "^2.9"
+        "laravel/sanctum": "^2.9",
+        "doctrine/dbal": "^3.1"
     }
 }

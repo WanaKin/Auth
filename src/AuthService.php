@@ -20,7 +20,7 @@ class AuthService {
      * @param  int $size The size of the string to generate.
      * @return string
      */
-    private function random($size)
+    protected function random($size)
     {
         return bin2hex(random_bytes($size / 2));
     }
@@ -30,7 +30,7 @@ class AuthService {
      *
      * @return string
      */
-    protected function getAuthenticatable()
+    public function getAuthenticatable()
     {
         return config('auth.providers.users.model', 'App\\Models\\User');
     }
@@ -41,8 +41,8 @@ class AuthService {
      * @param  string $name The registering user's name
      * @param  string $email The registering user's email
      * @param  string $password The registering user's plaintext password
-     * @param array $defaults An array to set any additional default values
-     * @return ?Model
+     * @param  array $defaults An array to set any additional default values. This can also be used to set custom options (e.g. a user's role).
+     * @return ?Model The model of the newly created user on success, null on failure
      */
     public function register($name, $email, $password, $defaults = [])
     {
@@ -68,7 +68,7 @@ class AuthService {
 
             return $user;
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -115,9 +115,9 @@ class AuthService {
      * @param  string $email Set a custom email to send to an address other than the one on record
      * @return void
      */
-    public function resend($user, $email = '')
+    public function sendVerificationEmail($user, $email = '')
     {
-        // Fallback to the user's current email address
+        // Fallback to the user's current email address if none provided
         $email = $email ?: $user->email;
 
         // Generate the verification URL
@@ -125,15 +125,25 @@ class AuthService {
             'email' => $email,
             'verification_slug' => $this->random(32)
         ]);
-        $verificationUrl = route('auth.verify', [
-            'emailVerification' => $verification
-        ]);
+        $verificationUrl = route('auth.verify', $verification);
 
         // Send the verification email
         Mail::to((object)[
             'name' => $user->name,
             'email' => $email
         ])->send(new EmailAdded($verificationUrl));
+    }
+
+    /**
+     * Alias of sendVerificationEmail
+     *
+     * @param  Model $user
+     * @param  string $email
+     * @return void
+     */
+    public function resend($user, $email = '')
+    {
+        return $this->sendVerificationEmail($user, $email);
     }
 
     /**
@@ -156,11 +166,13 @@ class AuthService {
                 // Delete the token
                 $emailVerification->delete();
 
-                return TRUE;
+                // The verification succeeded
+                return true;
             }
         }
 
-        return FALSE;
+        // The verification failed
+        return false;
     }
 
     /**
@@ -168,10 +180,9 @@ class AuthService {
      *
      * @param  string $email The authenticating user's email
      * @param  string $password The authenticating user's password
-     * @param  bool $remember Whether or not to set the remember token. Defaults to false.
-     * @return ?Model
+     * @return ?Model The model to sign in on success, or null on failure
      */
-    public function login($email, $password, $remember = false)
+    public function login($email, $password)
     {
         // Try to find the model
         if ($user = $this->getAuthenticatable()::where('email', $email)->first()) {
@@ -251,7 +262,8 @@ class AuthService {
         // Find the user
         if ($user = $this->getAuthenticatable()::where('email', $email)->first()) {
             // Create a new token
-            $passwordResetToken = $user->passwordResetTokens()->create([
+            $passwordResetToken = PasswordResetToken::create([
+                'email' => $email,
                 'token' => $this->random(32)
             ]);
 

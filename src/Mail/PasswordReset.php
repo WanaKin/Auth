@@ -8,17 +8,17 @@ use Illuminate\Queue\SerializesModels;
 
 class PasswordReset extends Mailable {
     use Queueable, SerializesModels;
-    
+
     /** @var string */
     public $passwordResetUrl;
 
     /**
      * Create a new message instance.
      *
-     * @param string $passwordResetUrl
+     * @param string $passwordResetUrl The URL that allows the user to reset their password
      * @return void
      */
-    public function __construct( string $passwordResetUrl ) {
+    public function __construct($passwordResetUrl) {
         $this->passwordResetUrl = $passwordResetUrl;
     }
 
@@ -28,6 +28,6 @@ class PasswordReset extends Mailable {
      * @return $this
      */
     public function build() {
-        return $this->view( 'auth::password-reset' );
+        return $this->view('auth::password-reset');
     }
 }

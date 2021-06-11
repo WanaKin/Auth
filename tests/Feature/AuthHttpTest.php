@@ -29,7 +29,7 @@ class AuthHttpTest extends FeatureTestCase {
     public function testLoginRouteName()
     {
         // Try and visit the dashboard without logging in
-        $response = $this->get('/dashboard/auth');
+        $response = $this->get('/auth-settings');
 
         // Assert a redirect to /login
         $response->assertRedirect('/login');
@@ -110,7 +110,7 @@ class AuthHttpTest extends FeatureTestCase {
         Event::fake();
 
         // Set the redirect
-        config()->set('auth.redirect', '/thisisatest');
+        config()->set('auth.redirect', 'auth.logout');
 
         // Attempt a login
         $response = $this->post('/login', [
@@ -119,7 +119,7 @@ class AuthHttpTest extends FeatureTestCase {
         ]);
 
         // Assert the user was redirected properly
-        $response->assertRedirect('/thisisatest');
+        $response->assertRedirect('/logout');
 
         // Assert the user has been logged in
         $this->assertAuthenticatedAs($user);
@@ -150,7 +150,7 @@ class AuthHttpTest extends FeatureTestCase {
         $this->actingAs($user);
 
         // Update
-        $response = $this->post('/dashboard/auth', [
+        $response = $this->post('/auth-settings', [
             'name' => $name,
             'email' => $email
         ]);
@@ -178,7 +178,7 @@ class AuthHttpTest extends FeatureTestCase {
         $this->actingAs($user);
 
         // Update the user
-        $response = $this->post('/dashboard/auth', [
+        $response = $this->post('/auth-settings', [
             'name' => $user->name,
             'email' => $user->email
         ]);
@@ -238,7 +238,7 @@ class AuthHttpTest extends FeatureTestCase {
         $this->actingAs($user);
 
         // Update the password
-        $response = $this->post('/dashboard/auth/password', [
+        $response = $this->post('/auth-settings/password', [
             'password' => $password,
             'password-verify' => $password
         ]);
@@ -278,7 +278,9 @@ class AuthHttpTest extends FeatureTestCase {
     {
         // Create a user and reset link
         $user = $this->createUser();
-        $passwordResetToken = $user->passwordResetTokens()->create([
+
+        $passwordResetToken = PasswordResetToken::create([
+            'email' => $user->email,
             'token' => $this->faker->slug
         ]);
 
@@ -287,14 +289,17 @@ class AuthHttpTest extends FeatureTestCase {
 
         // Assert the service is called
         AuthService::shouldReceive('updatePassword')->once()->withArgs(function (PasswordResetToken $passwordResetTokenArg, string $passwordArg) use ($passwordResetToken, $password) {
-                return $passwordResetToken->is($passwordResetTokenArg) && $passwordArg === $password;
-            });
+            return $passwordResetToken->token === $passwordResetTokenArg->token && $passwordArg === $password;
+        })->andReturn(true);
 
         // Reset the password
         $response = $this->post('/password-reset/' . $passwordResetToken->token, [
             'password' => $password,
             'password-verify' => $password
         ]);
+
+        // Assert the session has no errors
+        $response->assertSessionDoesntHaveErrors();
 
         // Assert the response is a redirect
         $response->assertRedirect();
@@ -315,7 +320,7 @@ class AuthHttpTest extends FeatureTestCase {
 
         // Request to resend the verification email
         $this->actingAs($user);
-        $response = $this->get('/dashboard/auth/resend');
+        $response = $this->get('/auth-settings/resend');
 
         $response->assertRedirect();
     }

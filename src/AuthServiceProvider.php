@@ -39,7 +39,7 @@ class AuthServiceProvider extends ServiceProvider
 
         // Load web routes if enabled (default to true)
         if (config('auth.routes.web', TRUE)) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/auth.php');
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         }
     }
 }

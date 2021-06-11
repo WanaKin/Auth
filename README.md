@@ -12,6 +12,9 @@ This package currently does the following for you out of the box:
 * Password resets
 * Simple dashboard to update username, email, and password
 
+## Subject To Change
+This package is still in beta, and a such things are subject to change, such as the database migrations. Feel free to use this for development and proof of concepts, but I recommend against using this in production until it reaches a stable release.
+
 ## Installation
 In order to install this package, simply add it to composer:
 
@@ -29,6 +32,9 @@ class User {
 	...
 }
 ```
+
+### Migrations
+This package will create an `email_verifications` table to manage the email verification tokens. It will also add a unique constraint to the `token` column of the built-in `password_resets` table. 
 
 ## Configuration
 ### Custom Validation Rules
@@ -59,23 +65,23 @@ This will be replaced with the current user's actual ID before merging the rules
 This package respects the expiration time set in `config/auth.php`.
 
 ### Redirects
-You can customize where the user will be redirected by adding a `redirects` array to your `config/auth.php` file. Here are the currently available options:
+You can customize where the user will be redirected by adding a `redirects` array to your `config/auth.php` file. The values should correspond to route names. Here are the currently available options:
 
 ```php
 'redirect' => [
 	// When a user logs in
-	'login' => '/',
+	'login' => 'dashboard.welcome',
 	// When a user registers for an account
-	'register' => '/',
+	'register' => 'home',
 	// When a user verifies their email address
-	'verify' => '/'
+	'verify' => 'dashboard.inex'
 ],
 ```
 
 Alternatively, you can set a global redirect for any of the actions by providing a string instead of an array:
 
 ```php
-'redirect' => '/'
+'redirect' => 'home'
 ```
 
 ## Routes
@@ -88,14 +94,14 @@ This package will add the following routes to your Laravel application:
 |GET|login|/login|
 |POST||/login|
 |GET|auth.logout|/logout|
-|GET|dashboard.auth|/dashboard/auth|
-|POST||/dashboard/auth|
-|POST|auth.dashboard.password|/dashboard/auth/password
+|GET|dashboard.auth|auth-settings|
+|POST||auth-settings|
+|POST|auth.dashboard.password|auth-settings/password
 |GET|auth.password.forgot|/forgot-password|
 |POST||/forgot-password|
 |GET|auth.password.reset|/reset-password/{passwordResetToken:token}|
 |POST||/reset-password/{passwordResetToken:token}|
-|GET|auth.dashboard.resend|/dashboard/auth/resend
+|GET|auth.dashboard.resend|auth-settings/resend
 
 ## Checking if a user verified their email
 Once you've added the `Verifiable` trait (included in the `WanaKinAuth` trait) to your User model, you can use the `emailVerified` attribute to check if the user has verified their email:
@@ -151,9 +157,16 @@ class User
 ```
 
 ## Creating your own controller
-In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead. You'll also need to add your own routes for the new controller. The ability to specify a custom controller for the default routes is in the works.
+In order to make this package as flexible as possible, most of the functionality is implemented in the `WanaKin\Auth\AuthService` class. More thorough documentation on this will be added soon, but in the meantime you can look at the `src/AuthService.php` class to see the available methods. If you'd prefer a facade, you can use `WanaKin\Auth\Facades\AuthService` instead.
 
 Alternatively, you can choose to extend the default controller `WanaKin\Auth\AuthController` and only change the methods that deviate from the package's built-in functionality.
+
+### Custom routes
+You can either disable this package's built-in web routes and register your own, or set the `auth.controller` (in `config/auth.php`) config option to your own controller:
+
+```php
+'controller' => \App\Http\Controllers\MyAuthController::class,
+```
 
 ## API Routes
 If you'd like to use API authentication, then add the following to your `config/auth.php`:

@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 /**
  * See WanaKin\Auth\AuthService for full method documentation.
  *
+ * @method static string getAuthenticatable()
  * @method static string random(int $size)
  * @method static ?Authenticatable register(string $name, string $email, string $password, array $defaults = [])
  * @method static bool emailAvailable(string $email, ?Model $user = NULL)

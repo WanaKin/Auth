@@ -8,16 +8,17 @@ use Illuminate\Queue\SerializesModels;
 
 class EmailAdded extends Mailable {
     use Queueable, SerializesModels;
-    
+
     /** @var string */
     public $verificationUrl;
 
     /**
      * Create a new message instance.
      *
+     * @param  string $verificationUrl The email verification URL
      * @return void
      */
-    public function __construct( string $verificationUrl ) {
+    public function __construct($verificationUrl) {
         $this->verificationUrl = $verificationUrl;
     }
 
@@ -27,6 +28,6 @@ class EmailAdded extends Mailable {
      * @return $this
      */
     public function build() {
-        return $this->view( 'auth::email-added' );
+        return $this->view('auth::email-added');
     }
 }

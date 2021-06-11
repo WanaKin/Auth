@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use WanaKin\Auth\AuthService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 class AuthController extends Controller
@@ -55,10 +56,25 @@ class AuthController extends Controller
 
         // Try to redirect to the route specific to the current state, fallback to a global redirect, and if all else fails, redirect to the application's root URL
         if (is_string($route = config('auth.redirect.' . $state) ?? config('auth.redirect'))) {
-            return redirect($route);
+            return redirect()->route($route);
         } else {
             return redirect(config('app.url'));
         }
+    }
+
+    /**
+     * Redirect to a state from the config
+     *
+     * @param  string $state The state to redirect to
+     * @return RedirectResponse
+     */
+    protected function redirectToState($state)
+    {
+        // Check if anything eixsts in the config for the state
+        $route = config('auth.redirect.' . $state) ?? config('auth.redirect');
+
+        // Resolve the route name
+        return route($route);
     }
 
     /**

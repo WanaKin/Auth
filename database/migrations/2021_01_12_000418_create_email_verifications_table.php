@@ -10,12 +10,13 @@ class CreateEmailVerificationsTable extends Migration {
      *
      * @return void
      */
-    public function up() {
+    public function up()
+    {
         Schema::create( 'email_verifications', function ( Blueprint $table ) {
             $table->id();
-            $table->morphs( 'verifiable' );
-            $table->string( 'email' );
-            $table->string( 'verification_slug' )->unique();
+            $table->morphs('verifiable');
+            $table->string('email');
+            $table->string('verification_slug')->unique();
             $table->timestamps();
         } );
     }
@@ -26,6 +27,6 @@ class CreateEmailVerificationsTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists( 'email_verifications' );
+        Schema::dropIfExists('email_verifications');
     }
 }

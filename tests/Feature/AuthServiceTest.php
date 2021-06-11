@@ -10,6 +10,7 @@ use Tests\Fixtures\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\PasswordReset as PasswordResetEvent;
+use WanaKin\Auth\PasswordResetToken;
 
 class AuthServiceTest extends FeatureTestCase {
     /**
@@ -255,7 +256,8 @@ class AuthServiceTest extends FeatureTestCase {
         Event::fake();
 
         // Create a password reset token
-        $passwordResetToken = $user->passwordResetTokens()->create([
+        $passwordResetToken = PasswordResetToken::create([
+            'email' => $user->email,
             'token' => $this->faker->slug
         ]);
 
