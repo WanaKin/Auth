@@ -28,6 +28,6 @@ class PasswordReset extends Mailable {
      * @return $this
      */
     public function build() {
-        return $this->view('auth::password-reset');
+        return $this->view('auth::password-reset-mail');
     }
 }

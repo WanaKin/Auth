@@ -316,7 +316,7 @@ class AuthHttpTest extends FeatureTestCase {
         $user = $this->createUser();
 
         // Assert the AuthService is called
-        AuthService::shouldReceive('resend')->once()->withArgs([$user])->andReturn(TRUE);
+        AuthService::shouldReceive('resend')->once()->withArgs([$user])->andReturn(true);
 
         // Request to resend the verification email
         $this->actingAs($user);
