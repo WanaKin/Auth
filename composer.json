@@ -2,7 +2,7 @@
     "name": "wanakin/auth",
     "description": "Simple Laravel authentication",
     "license": "MIT",
-    "version": "0.0.7-beta",
+    "version": "0.0.8-beta",
     "authors": [
         {
             "name": "WanaKin",
